@@ -1,0 +1,4 @@
+*.class
+build/
+hs_err_pid*
+kbtools-conf

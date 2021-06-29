@@ -1,0 +1,12 @@
+# url for the atlassian cloud
+ATLASSIAN_URL=https://makesomenoise.atlassian.net/
+# Username to be used to authenticate to atlassian. make sure that the account
+# you're using has permissions to see the project you want to extract the metrics for
+ATLASSIAN_USERNAME=someone@example.com
+# Follow the instructions on the link below to retrieve your API Key
+# https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
+ATLASSIAN_APIKEY=*****
+# ID of your project
+JIRA_PROJECT=PROJECT
+# Comma-separated list of labels you want to use to filter your tickets
+JIRA_LABELS=label1,label2

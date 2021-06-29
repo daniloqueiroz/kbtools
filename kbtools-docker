@@ -1,0 +1,86 @@
+#!/bin/bash
+IMAGE_NAME=kbtools
+
+function help() {
+  cat << EOF
+kbtool-docker
+
+This command makes possible to build and run 'kbtool' inside a docker container
+without need to install Java 11 on your host machine.
+
+Available options:
+  * build: generates the docker image
+  * clean: clean all built artifacts
+  * run or -: run kbtools
+    Examples:
+        "$0 - --help"
+        "$0 - --verbose kanban-metrics 2021-06-01 2021-06-07"
+EOF
+}
+
+function build() {
+  flag="$1"
+  if [ ${flag} != "skip-gradle" ]; then
+    docker run \
+      --rm \
+      --mount type=bind,source="$(pwd)",target=/app \
+      --workdir=/app \
+      gradle:jdk11 gradle --no-daemon --parallel distTar
+  fi
+  docker build . -t ${IMAGE_NAME}
+}
+
+function clean() {
+	docker rmi -f ${IMAGE_NAME}
+	sudo rm -rf build
+}
+
+function run() {
+  if [ -f kbtools-conf ]; then
+    docker run \
+      --rm \
+      --env-file kbtools-conf \
+      kbtools \
+      "$@"
+  else
+    echo "File 'kbtools-conf' doesn't exist."
+    exit 1
+  fi
+}
+
+function shell() {
+  if [ -f kbtools-conf ]; then
+    docker run \
+      --rm \
+      -it \
+      --entrypoint /bin/bash \
+      --env-file kbtools-conf \
+      kbtools
+  else
+    echo "File 'kbtools-conf' doesn't exist."
+    exit 1
+  fi
+}
+
+cmd=${1:-run}
+shift
+
+case "${cmd}" in
+build)
+  build "$@"
+  ;;
+clean)
+  clean
+  ;;
+shell)
+  shell
+  ;;
+run|-)
+  run "$@"
+  ;;
+*)
+  help
+  exit 1
+  ;;
+esac
+
