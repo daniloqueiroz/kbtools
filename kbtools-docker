@@ -20,7 +20,7 @@ EOF
 
 function build() {
   flag="$1"
-  if [ ${flag} != "skip-gradle" ]; then
+  if [ "${flag}" != "skip-gradle" ]; then
     docker run \
       --rm \
       --mount type=bind,source="$(pwd)",target=/app \
