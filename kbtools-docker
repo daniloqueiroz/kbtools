@@ -25,7 +25,7 @@ function build() {
       --rm \
       --mount type=bind,source="$(pwd)",target=/app \
       --workdir=/app \
-      gradle:jdk11 gradle --no-daemon --parallel distTar
+      gradle:jdk11 gradle --no-daemon --parallel clean distTar
   fi
   docker build . -t ${IMAGE_NAME}
 }
