@@ -6,8 +6,8 @@ import kanban.TicketDetails
 import kanban.TicketService
 import kanban.TicketType
 import kanban.TicketsGroup
-import java.time.Duration
-import java.time.Instant
+import java.time.*
+import java.time.temporal.ChronoField
 
 class JiraService(
     private val jira: JiraConnector
@@ -62,9 +62,16 @@ class JiraService(
         }
         // create new issue detail if
         if (start != null && end != null) {
-            TicketDetails(id, it, Duration.between(start, end), isIncident = issue.priority?.name == "Highest")
+            val tz = ZoneId.of("UTC")
+            val weekStart = LocalDateTime.ofInstant(start, tz).get(ChronoField.ALIGNED_WEEK_OF_YEAR)
+            val weekEnd = LocalDateTime.ofInstant(end, tz).get(ChronoField.ALIGNED_WEEK_OF_YEAR)
+            val weekendDays = 2 * (weekEnd - weekStart)
+
+            Log debug "Calculating duration for task $id: start week: $weekStart, end week $weekEnd, weekend days: $weekendDays"
+            val duration = Duration.between(start, end).minusDays(weekendDays.toLong())
+            TicketDetails(id, it, duration , isIncident = issue.priority?.name == "Highest")
         } else {
-            Log.warning("Issue ${issue.key} has no start or end date  $start - $end")
+            Log warning "Issue ${issue.key} has no start or end date  $start - $end"
             null
         }
     }
